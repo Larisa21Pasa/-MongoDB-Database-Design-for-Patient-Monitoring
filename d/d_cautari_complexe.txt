@@ -1,0 +1,184 @@
+
+
+
+///////////// SCRIPT D - CAUTARI COMPLEXE //////////////
+//USE CURSORS
+//iterate over an cursor
+function iterateCursor() {
+    let cursor = db.patients.find(
+        {},
+        
+        {
+            _id: 1,
+            "full_name.last_name": 1,
+            "full_name.first_name": 1,
+        }
+    )
+    while(cursor.hasNext()) {
+        printjson(cursor.next());
+    }
+}
+iterateCursor()
+
+
+
+//mean for headr_rate for all patients
+function findMean_HeartRate() {
+    let patientsCursor = db.patients.find();
+
+    while(patientsCursor.hasNext()) {
+        let patient = patientsCursor.next();
+        let totalHeartRate = 0;
+        let count = 0;
+        
+        let observationsCursor = db.patient_obs_sheet.find({ "patient": patient._id });
+
+        while(observationsCursor.hasNext()) {
+            let observation = observationsCursor.next();
+            observation.observations.forEach(function(obs) {
+                totalHeartRate += obs.heart_rate;
+                count++;
+            });
+        }
+        
+        let avgHeartRate = totalHeartRate / count;
+        print(`Mean heart_rate for ${patient.full_name.first_name} ${patient.full_name.last_name}: ${avgHeartRate.toFixed(2)}`);
+    }
+}
+findMean_HeartRate()
+
+db.patients.find()
+db.patient_obs_sheet.find()
+
+//compute mean temperature for patients with symptoms fever
+function findMean_Temperature(symptom) {
+    
+let totalTemp = 0;
+let countTemp = 0;
+
+let observationsCursor = db.patient_obs_sheet.find({ "observations.symptoms": symptom });
+
+while(observationsCursor.hasNext()) {
+    let observation = observationsCursor.next();
+    observation.observations.forEach(function(obs) {
+        if (obs.symptoms.includes(symptom)) {
+            totalTemp += obs.temperature;
+            countTemp++;
+
+            let patient = db.patients.findOne({ "_id": observation.patient });
+            print(`- Patient: ${patient.full_name.first_name} ${patient.full_name.last_name}, ID: ${patient._id}`);
+            print(`  Temperature: ${obs.temperature}`);
+            print(`  Symptoms: ${obs.symptoms}`);
+        }
+    });
+}
+
+if (countTemp > 0) {
+    let avgTemp = totalTemp / countTemp;
+    print(`\nMean temperature for fever symptom : ${avgTemp.toFixed(2)}`);
+} else {
+    print("No patient with fever symptoms found.");
+}
+}
+
+findMean_Temperature("fever")
+
+
+//USE AGGREGATE
+//compune number of obs sheets for each doctor
+function countObservationSheetsForDoctor() {
+    
+    db.patient_obs_sheet.aggregate([
+        { $group: { _id: "$doctor", count: { $sum: 1 } } },
+        { $sort: { count: -1 } }
+    ]).pretty();
+}
+countObservationSheetsForDoctor()
+
+//display main symptoms for each patient
+function mainSymptomsForPatient() {
+   var result =  db.patient_obs_sheet.aggregate([
+        { $unwind: "$observations" },
+        { $unwind: "$observations.symptoms" }, 
+        { 
+            $group: { 
+            _id: "$_id",
+            unique_symptoms_for_each_doc: { $addToSet: "$observations.symptoms" }
+        } 
+    }
+    ]).pretty();
+
+    printjson(result.toArray());
+}
+
+mainSymptomsForPatient()
+
+//check first 3 patients with the highest heart rate
+function classifyPatientsByHeartRate() {
+    var result  = db.patient_obs_sheet.aggregate([
+        { $unwind: "$observations" },
+        { 
+            $group: { 
+            _id: "$_id",
+            total_heartb: { $sum: "$observations.heart_rate" }
+        } 
+    },
+    {
+        $sort:{total_heartb:-1}
+    },
+    {
+        $limit: 3
+    }
+    ]).pretty();
+    printjson(result.toArray());
+
+}
+
+classifyPatientsByHeartRate() 
+
+
+//USE AGGREGATE AND LOOKUP
+//take complete details of patients with fever symptoms(symptoms from observations from patient_obs_sheet)
+function getPatientsWithSymptom(symptom) {
+   
+    var result = db.patient_obs_sheet.aggregate([
+        { $match: { "observations.symptoms": symptom } },
+        { $unwind: "$observations" },
+        { $lookup: { from: "patients", localField: "patient", foreignField: "_id", as: "patient_details" } },
+        { $project: { 
+            patient_id: "$patient_details._id",
+            patient_name: "$patient_details.full_name",
+            personal_details:"$patient_details.personal_details",
+            temperature: "$observations.temperature",
+            symptoms: "$observations.symptoms"
+        }}
+    ]).pretty();
+    printjson(result.toArray());
+}
+
+getPatientsWithSymptom("headaches")
+
+//mean oxygen level for each patient
+function findMean_OxygenLevel() {
+    var result = db.patient_obs_sheet.aggregate([
+        { $unwind: "$observations" },
+        { $unwind: "$observations.oxygen_saturation" }, 
+        { $group: { 
+            _id: "$patient", 
+            avg_oxygen_level: { $avg: "$observations.oxygen_saturation" } 
+        }},
+        { $lookup: { from: "patients", localField: "_id", foreignField: "_id", as: "patient_details" } },
+        { $unwind: "$patient_details" }, 
+        { $project: { 
+            patient_name: "$patient_details.full_name",
+            avg_oxygen_level: 1
+        }}
+    ]).pretty();
+    printjson(result.toArray());
+}
+findMean_OxygenLevel()
+
+
+db.patient_obs_sheet.find()
+db.patients.find()
+db.doctors.find()

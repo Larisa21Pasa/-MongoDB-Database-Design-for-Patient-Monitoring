@@ -1,0 +1,242 @@
+///////////// SCRIPT A - STRUCTURA COLECTII //////////////
+use("pbd")
+///////////// POPULARE DOCTORI //////////////
+function initialPopulateDoctors() {
+    db.doctors.insertMany([
+      {
+          "_id": "1890123456789",
+          "full_name": {
+              "last_name": "Popescu",
+              "first_name": "Alin"
+          },
+          "specialization": "Intensive Therapy",
+          "personal_details": {
+              "address": "Pacurari",
+              "phone": "0754345891",
+              "email": "popescu@yahoo.com"
+          }
+      },
+  
+      {
+        "_id": "1890123456790",
+        "full_name": {
+          "last_name": "Ionescu",
+          "first_name": "Mihai"
+        },
+        "specialization": "Cardiology",
+        "personal_details": {
+          "address": "Centru",
+          "phone": "0754345892",
+          "email": "ionescu@yahoo.com"
+        }
+      },
+      {
+        "_id": "1890123456791",
+        "full_name": {
+          "last_name": "Radu",
+          "first_name": "Maria"
+        },
+        "specialization": "Neurology",
+        "personal_details": {
+          "address": "Copou",
+          "phone": "0754345893",
+          "email": "radu@yahoo.com"
+        }
+      },
+      {
+        "_id": "1890123456792",
+        "full_name": {
+          "last_name": "Dumitru",
+          "first_name": "Elena"
+        },
+        "specialization": "Pediatrics",
+        "personal_details": {
+          "address": "Tatarasi",
+          "phone": "0754345894",
+          "email": "dumitru@yahoo.com"
+        }
+      },
+      {
+        "_id": "1890123456793",
+        "full_name": {
+          "last_name": "Constantinescu",
+          "first_name": "Vlad"
+        },
+        "specialization": "Surgery",
+        "personal_details": {
+          "address": "Bucium",
+          "phone": "0754345895",
+          "email": "constantinescu@yahoo.com"
+        }
+      }
+    ]);
+  }
+  
+
+initialPopulateDoctors();
+
+
+db.doctors.drop()
+
+
+db.doctors.find()
+
+
+///////////// POPULARE PACIENTI //////////////
+function initialPopulatePatients() {
+
+    db.patients.insertMany([
+      {
+          "_id": "1890123456788",
+          "full_name": {
+            "last_name": "Alecu",
+            "first_name": "Ion"
+          },
+          "personal_details": {
+            "age": 45,
+            "gender": "male",
+            "address": "Iasi",
+            "phone": "0754345891",
+            "email": "alecu@yahoo.com"
+          },
+          "medical_history": [
+            {
+              "visit_date": new Date("2024-04-17").toISOString().split('T')[0],
+              "diagnostic": "diabetes",
+              "treatment": "paracetamol"
+            }
+          ]
+      },
+      {
+        "_id": "1890123456787",
+        "full_name": {
+          "last_name": "Marinescu",
+          "first_name": "Andreea"
+        },
+        "personal_details": {
+          "age": 30,
+          "gender": "female",
+          "address": "Tudor Vladimirescu",
+          "phone": "0754345889",
+          "email": "marinescu@yahoo.com"
+        },
+        "medical_history": [
+          {
+            "visit_date": new Date("2024-04-16").toISOString().split('T')[0],
+            "diagnostic": "hypertension",
+            "treatment": "betablockers"
+          }
+        ]    
+      },
+      {
+        "_id": "1890123456786",
+        "full_name": {
+          "last_name": "Gheorghe",
+          "first_name": "Mihai"
+        },
+        "personal_details": {
+          "age": 55,
+          "gender": "male",
+          "address": "Alexandru cel Bun",
+          "phone": "0754345888",
+          "email": "gheorghe@yahoo.com"
+        },
+        "medical_history": [
+          {
+            "visit_date": new Date("2024-04-15").toISOString().split('T')[0],
+            "diagnostic": "osteoporosis",
+            "treatment": "calcium"
+          }
+        ]
+      }
+    ]);
+  }
+  
+
+initialPopulatePatients()
+
+db.patients.drop()
+
+db.patients.find()
+
+
+///////////// POPULARE FISA OBS //////////////
+function initialPopulatePatientObsSheet() {
+
+    db.patient_obs_sheet.insertMany([
+      {
+          "_id":"1890123456789_1890123456788",
+          "doctor": "1890123456789",
+          "patient": "1890123456788",
+
+          "active_status": true,
+
+          "diagnostic": "osteoporosis",
+          "treatment": "calcium",
+          "observations": [
+            {
+              "observation_date": new Date("2024-04-18").toISOString().split('T')[0],
+              "serious_condition": false,
+              "heart_rate": 85,
+              "oxygen_saturation": [98, 97, 96],
+              "temperature": 37.7,
+              "symptoms": ["cough", "fever"],
+              "radiography": null
+            }
+          ]
+      },
+      {
+        "_id":"1890123456789_1890123456786",
+        "doctor": "1890123456789",
+        "patient": "1890123456786",
+
+        "active_status": true,
+
+        "diagnostic": "osteoporosis",
+        "treatment": "calcium",
+        "observations": [
+          {
+            "observation_date": new Date("2024-04-19").toISOString().split('T')[0],
+            "serious_condition": false,
+            "heart_rate": 75,
+            "oxygen_saturation": [99, 98, 97],
+            "temperature": 36.9,
+            "symptoms": ["fatigue", "headaches"],
+            "radiography": null
+          }
+        ]
+      },
+      {
+        "_id": "1890123456790_1890123456787",
+        "doctor": "1890123456790",
+        "patient": "1890123456787",
+
+        "active_status": true,
+
+        "diagnostic": "osteoporosis",
+        "treatment": "calcium",
+        "observations": [
+          {
+            "observation_date": new Date("2024-04-20").toISOString().split('T')[0],
+            "serious_condition": true,
+            "heart_rate": 90,
+            "oxygen_saturation": [95, 94, 93],
+            "temperature": 38.2,
+            "symptoms": ["fever", "tremor"],
+            "radiography": null
+          }
+        ]
+      }
+    ]);
+  
+  
+}
+
+initialPopulatePatientObsSheet();
+
+db.patient_obs_sheet.find().pretty();
+
+db.patient_obs_sheet.drop()
+
+
+

@@ -1,0 +1,618 @@
+
+  
+///////////// SCRIPT B - CRUD //////////////
+// DOCTORS:
+//  1. Functie de creare
+function checkDoctorEmployment(cnp) {
+    return !!db.doctors.findOne({ "_id": cnp });
+}
+function createDoctor(cnp, last_name, first_name, specialization, address = null, phone = null, email = null) {
+  
+    if(checkDoctorEmployment(cnp) === true) {
+        print("The doctor is already employed.!")
+        return ;
+    }
+
+    var toBeInserted =  {
+        "_id": cnp,
+        "full_name": {
+            "last_name": last_name,
+            "first_name": first_name
+        },
+        "specialization": specialization,
+        "personal_details": {
+            "address": address,
+            "phone": phone,
+            "email": email
+        }
+    }
+    db.doctors.insertOne(toBeInserted);
+    return db.doctors.find({ "_id": cnp });
+}
+
+
+
+//  2. Functie de update date personale
+function updateDoctorPersonalDetails(cnp, address = null, phone = null, email = null) {
+  
+    if(checkDoctorEmployment(cnp) === false) {
+        print("The doctor is not employed.!")
+        return ;
+    }
+
+    db.doctors.updateOne(
+        {
+            "_id": cnp
+        },
+        {
+            $set:{
+                "personal_details": {
+                    "address": address,
+                    "phone": phone,
+                    "email": email
+                }
+            }
+        }
+    );
+    return db.doctors.find({ "_id": cnp });
+}
+
+
+
+//  3. Functie de stergere doctor
+// -- daca se sterge un doctor si o fisa de observatie care il contine este
+// -- activa , se va alege random alt doctor pentru acea fisa 
+function deleteDoctor(cnp) {
+    var successDelete = false;
+    if(checkDoctorEmployment(cnp) === false) {
+        print("The doctor is not employed.!")
+        return false;
+    }
+    const doctorToDelete = db.doctors.findOne({ "_id": cnp });
+    const bulkPatientObservationSheets= [];
+
+    const observationSheetsCount = db.patient_obs_sheet.find({ "doctor": cnp }).count();
+
+    if (observationSheetsCount === 0) {
+        const deleteResult = db.doctors.deleteOne({ "_id": cnp });
+
+        if (deleteResult.deletedCount === 1) {
+            print("Doctor deleted successfully.");
+            return true;
+        } else {
+            print("An error occurred while deleting the doctor.");
+            return false;
+        }    
+    }
+    const observationSheets = db.patient_obs_sheet.find({ "doctor": cnp });
+
+    observationSheets.forEach(sheet => {
+        const newDoctor = db.doctors.findOne({ "_id": { $ne: cnp } });
+
+        if (newDoctor) {
+            const updateOperation = {
+                "updateOne": {
+                    "filter": { "_id": sheet._id },
+                    "update": {
+                        $set: {
+                            "doctor": newDoctor._id
+                        },
+                        $push: {
+                            "old_doctor": doctorToDelete._id
+                        }
+                    },
+                    "upsert": true
+                }
+            };
+            bulkPatientObservationSheets.push(updateOperation);
+
+        } else {
+            print(`No available doctor found for observation sheet ${sheet._id}`);
+        }
+    });
+    
+    if (bulkPatientObservationSheets.length > 0) {
+        const bulkResult = db.patient_obs_sheet.bulkWrite(bulkPatientObservationSheets);
+        if (bulkResult.modifiedCount === observationSheetsCount) {
+            const deleteResult = db.doctors.deleteOne({ "_id": cnp });
+            if (deleteResult.deletedCount === 1) {
+                print("Doctor deleted successfully.");
+                return true;
+            } else {
+                print("An error occurred while deleting the doctor.");
+                return false;
+            }
+
+        } else {
+            print("An error occurred while deleting the doctor.");
+        }
+    } else {
+        const deleteResult = db.doctors.deleteOne({ "_id": cnp });
+        if (deleteResult.deletedCount === 1) {
+            print("Doctor deleted successfully.");
+            return true;
+        } else {
+            print("An error occurred while deleting the doctor.");
+            return false;
+        }
+    }
+}
+
+// 4. ReplaceOne pentru doctor ca exemplu doar
+function replaceDoctor(cnp) {
+    const newDoctorData = {
+        "_id": "1890123456789",
+        "full_name": {
+            "last_name": "Popescu",
+            "first_name": "Alin"
+        },
+        "specialization": "Emergency Medicine",
+        "personal_details": {
+            "address": "Pacurari",
+            "phone": "0754345891",
+            "email": "newemail@yahoo.com"
+        }
+    };
+    const result = db.doctors.replaceOne(
+        { "_id": cnp },
+        newDoctorData
+    );
+
+    if (result.modifiedCount === 1) {
+        print(`Doctor with CNP ${cnp} replaced successfully.`);
+    } else {
+        print(`No doctor found with CNP ${cnp}.`);
+    }
+}
+
+
+
+// PATIENTS:
+// 1. Functie creare pacient - date obligatorii
+function checkPatientExistence(cnp) {
+    return !!db.patients.findOne({ "_id": cnp });
+}
+function createPatient(cnp, last_name, first_name, age, gender, address, phone, email) {
+  
+    if(checkPatientExistence(cnp) === true) {
+        print("The patient is already registered in system.!")
+        return ;
+    }
+
+    var toBeInserted =  {
+        "_id": cnp,
+        "full_name": {
+          "last_name": last_name,
+          "first_name": first_name
+        },
+        "personal_details": {
+          "age": age,
+          "gender": gender,
+          "address": address,
+          "phone": phone,
+          "email":  email
+        },
+        "medical_history": [ ]    
+      }
+    db.patients.insertOne(toBeInserted);
+
+    return db.patients.find({ "_id": cnp });
+}
+
+
+// 2. Functie update (add in) medical_history atunci cand se creaza o 
+// fisa de observatie pentru pacient
+ function addPatientMedicalHistory(cnp, newRegistration){
+    if(checkPatientExistence(cnp) === false) {
+        print("The patient is not registered in system.!")
+        return ;
+    }
+
+    db.patients.updateOne(
+        {
+            "_id": cnp
+        },
+        {
+            $push:{
+                "medical_history": newRegistration
+            }
+        }
+    );
+
+    return db.patients.find({ "_id": cnp });
+ }
+
+// 3. Functie stergere pacient -> toate fisele medicale asociate
+// vor fi invalidate-> status = false
+function deletePatient(cnp) {
+
+    if(checkPatientExistence(cnp) === false) {
+        print("The patient is not registered in system!")
+        return false;
+    }
+    const patientToDelete = db.patients.findOne({ "_id": cnp });
+    const bulkPatientObservationSheets= [];
+    const observationSheetsCount = db.patient_obs_sheet.find({ "patient": cnp }).count();
+
+    if (observationSheetsCount === 0) {
+        const deleteResult = db.patients.deleteOne({ "_id": cnp });
+
+        if (deleteResult.deletedCount === 1) {
+            print("Patient deleted successfully.");
+            return true;
+        } else {
+            print("An error occurred while deleting the patient.");
+            return false;
+        }    
+    }
+    const observationSheets = db.patient_obs_sheet.find({ "patient": cnp });
+    observationSheets.forEach(sheet => {
+        const updateOperation = {
+            "updateOne": {
+                "filter": { "_id": sheet._id },
+                "update": {
+                    $set: {
+                        "active_status": false,
+                    }
+                }
+            }
+        };
+        bulkPatientObservationSheets.push(updateOperation);
+    });
+    const bulkResult = db.patient_obs_sheet.bulkWrite(bulkPatientObservationSheets);
+    if (bulkResult.modifiedCount === observationSheetsCount) {
+        const deleteResult = db.patients.deleteOne({ "_id": cnp });
+
+        if (deleteResult.deletedCount === 1) {
+            print("Patient deleted successfully.");
+            return true;
+        } else {
+            print("An error occurred while deleting the patient.");
+            return false;
+        }   
+    } else {
+        print("An error occurred while deleting the patient.");
+        return false;
+    }
+}
+
+
+// PATIENT SHEET:
+// 1. Functie de creare fisa medicala:
+// -> verificare existenta pacient si doctor
+// -> verificare daca pacientul are o fisa activa
+// -> adaugare diagnostic+tratament in istoric pacient
+
+function checkObservationSheetExistence(cnpDoctor, cnpPatient) {
+    print("rezultat checkObservationSheetExistence  = ",!!db.patient_obs_sheet.findOne(
+        { "_id": cnpDoctor + "_" + cnpPatient ,
+        "active_status": true
+        }      ))
+    return !!db.patient_obs_sheet.findOne(
+        { "_id": cnpDoctor + "_" + cnpPatient ,
+        "active_status": true
+        }      
+    );
+
+}
+
+function createPatientSheet(cnpPatient, cnpDoctor, diagnostic, treatment) {
+
+    if(checkPatientExistence(cnpPatient) === false) {
+        print("The patient is not registered in system!")
+        return ;
+    }
+
+    if(checkDoctorEmployment(cnpDoctor) === false) {
+        print("The doctor is not employed.!")
+        return ;
+    }
+
+    //if sheet does not exist or is inactive
+    if (checkObservationSheetExistence(cnpDoctor, cnpPatient) === false) {
+        print("Pacientul has already an observation file!");
+        return;
+    }
+    print("dupa if")
+    var toBeInserted = 
+    {
+        "_id": cnpDoctor + "_" + cnpPatient, 
+        "doctor": cnpDoctor,
+        "patient": cnpPatient,
+    
+        "active_status": true,
+    
+        "diagnostic": diagnostic,
+        "treatment": treatment,
+    
+        "observations": [ ]
+      }
+  
+      var newMedicalHistory = {
+        "visit_date": new Date(),
+        "diagnostic": diagnostic,
+        "tratament": treatment
+    };
+
+    db.patient_obs_sheet.insertOne(toBeInserted);
+    print("dupa insert")
+    if(checkObservationSheetExistence(cnpDoctor, cnpPatient) === true)
+    {
+        print("Medical history added successfully!")
+        addPatientMedicalHistory(cnpPatient, newMedicalHistory);
+    }
+    else{
+        print("Error in creating observation sheet!");
+        return;
+    }
+
+    return db.patient_obs_sheet.find({ "_id": cnpDoctor + "_" + cnpPatient });
+}
+
+
+
+// 2. Functie de update status :
+// -> verificare existenta fisa medicala
+function deactivateSheet(cnpDoctor, cnpPatient) {
+    if(checkObservationSheetExistence(cnpDoctor, cnpPatient) === false) {
+        print("The observation sheet does not exist!")
+        return ;
+    }
+
+    db.patient_obs_sheet.updateOne(
+        {
+            "_id": cnpDoctor + "_" + cnpPatient
+        },
+        {
+            $set:{
+                "active_status": false
+            }
+        }
+    );
+    return db.patient_obs_sheet.find({ "_id": cnpDoctor + "_" + cnpPatient });
+}
+
+
+// 3. Functie de update observatii:
+// -> verificare existenta fisa medicala
+// ->campuri obligatorii inafar de radiografie
+function addObservationsToSheet(cnpDoctor, cnpPatient, newObservation)
+{
+    print("addObservationsToSheet")
+    if(checkObservationSheetExistence(cnpDoctor, cnpPatient) === false) {
+        print("The observation sheet does not exist or has been deactivated!")
+        return ;
+    }
+    print("dupa if")
+    db.patient_obs_sheet.updateOne(
+        {
+            "_id": cnpDoctor + "_" + cnpPatient
+        },
+        {
+            $push:{
+                "observations":
+                {
+                    $each:newObservation
+                    
+                }
+            }
+        }
+    );
+    print("dupa update")
+    
+    return db.patient_obs_sheet.find({ "_id": cnpDoctor + "_" + cnpPatient });
+
+}
+
+
+
+// 4. Functie de update radiografie dintr-o observatie:
+// -> verificare existenta fisa medicala si observatie dupa data
+const fs = require('fs');
+const { Binary } = require('mongodb');
+
+function convertImageToBase64(imagePath) {
+    const imageBuffer = fs.readFileSync(imagePath);
+    return new Binary(imageBuffer);
+}
+
+
+function addRadiographyToObservation(cnpDoctor, cnpPatient, observationDate, radiography) {
+    if(checkObservationSheetExistence(cnpDoctor, cnpPatient) === false) {
+        print("The observation sheet does not exist!")
+        return ;
+    }
+
+    const formattedDate = observationDate.toISOString().split('T')[0];
+    print("formattedDate = ",formattedDate)
+    db.patient_obs_sheet.updateOne(
+        {
+            "_id": cnpDoctor + "_" + cnpPatient
+        },
+        {
+            $set:{
+                "observations.$[elem].radiography": radiography
+            }
+        },
+        {
+            arrayFilters: [
+                {
+                    "elem.observation_date": formattedDate
+                }
+            ]
+        }
+    );
+    
+    return db.patient_obs_sheet.find({ "_id": cnpDoctor + "_" + cnpPatient });
+}
+
+
+
+// 5. Functie de update  pentru nivel oxigen -> vector in subdocument
+function updateOxygenSaturation(cnpDoctor, cnpPatient, observationDate, newOxygenSaturation)
+{
+    if(checkObservationSheetExistence(cnp) === false) {
+        print("The observation sheet does not exist!")
+        return ;
+    }
+    const formattedDate = observationDate.toISOString().split('T')[0];
+
+   var result =  db.patient_obs_sheet.updateOne(
+        {
+            "_id": cnpDoctor + "_" + cnpPatient
+        },
+        {
+            $push:{
+                "observations.$.oxygen_saturation": newOxygenSaturation
+            }
+        },
+        {
+            arrayFilters: [
+                {
+                    "elem.observation_date": formattedDate
+                }
+            ]
+        }
+    );
+    if (result.modifiedCount === 1) {
+        print(`Oxygen saturation for observation ${observationId} updated successfully!`);
+    } else {
+        print(`Failed to update oxygen saturation for observation ${observationId}.`);
+    }
+    return db.patient_obs_sheet.find({ "_id": cnpDoctor + "_" + cnpPatient });
+}
+
+
+///////////////// TEST SCRIPT B //////////////////
+function testDoctor(){
+    //CREATE FULL DOCTOR 
+    var result  = createDoctor(cnp="1890123456794",last_name= "DoctorNou1", first_name= "DoctorNouPrenume1", specialization="Intensive Therapy",
+    address="Iasi", phone="0754345891", email="nou@gmail.com");
+    printjson("result createDoctor full = ",result);
+
+    //CREATE PART DOCTOR 
+    result  = createDoctor(cnp="1890123456795",last_name= "DoctorNou2", first_name= "DoctorNouPrenume2", specialization="Intensive Therapy");
+    printjson("result createDoctor part = ", result);
+
+    //UPDATE PERSONAL DETAILS 
+    result  = updateDoctorPersonalDetails(cnp="1890123456795", address="Iasi", phone="0754345891", email="nou2@gmail.com");
+    printjson("result updateDoctorPersonalDetails = ", result);
+    db.doctors.find();
+
+    //DELETE DOCTOR - CASE DOES NOT EXIST IN SHEET
+    result = deleteDoctor("1890123456795");
+    print("result deleteDoctor when does not exists in sheets  = ",result);
+
+    //DELETE DOCTOR - CASE EXISTS IN SHEET
+    result = deleteDoctor("1890123456789");
+    print("result deleteDoctor when exists in sheets = ",result);
+   // db.patient_obs_sheet.find(); // -> obs sheet should now include the new doctor and not the old one
+}
+
+function testPatient(){
+    //CERATE PATIENT
+    var result = createPatient(cnp="1890123456784",last_name= "p2", first_name= "p2prenume", age= 25);
+    print("result createPatient = ",result);
+
+    //ADD MEDICAL HISTORY -> test function separate of create patient sheet
+    result = addPatientMedicalHistory(cnp="1890123456784", newRegistration = {
+        "visit_date": new Date(),
+        "diagnostic": "diabetes",
+        "tratament": "paracetamol_again"
+    })
+    print("result addPatientMedicalHistory = ",result);
+
+
+    //DELETE PATIENT + CHECK SHEETS
+    result = deletePatient("1890123456787");
+    print("result deletePatient = ",result);
+
+   // db.patients.find()
+   // db.patient_obs_sheet.find()
+}
+
+
+function testPatientSheet(){
+
+    //CREATE PATIENT SHEET
+    var result = createPatientSheet("1890123456785", "1890123456793", "cancer", "chemio");
+    print("result createPatientSheet = ",result)
+
+    //db.doctors.find()
+   //db.patients.find() //check if added to medical histrory
+    //db.patient_obs_sheet.find()
+
+    //DEACTIVATE SHEET
+    result = deactivateSheet( "1890123456793", "1890123456785");
+    print("result deactivateSheet = ",result)
+
+    //db.patient_obs_sheet.find()
+
+    //ADD OBSERVATIONS -> status false so it should not work
+    var result = addObservationsToSheet("1890123456793", "1890123456785", {
+        "observation_date": new Date(),
+        "serious_condition": false,
+        "heart_rate": 85,
+        "oxygen_saturation": [98, 97, 96],
+        "temperature": 37.7,
+        "symptoms": ["cough", "fever"],
+        "radiography": null
+    })
+    print("result addObservationsToSheet = ",result)
+    //db.patient_obs_sheet.find()
+
+
+
+
+    result = addObservationsToSheet("1890123456790", "1890123456787", 
+    [
+        {
+        "observation_date": new Date(),
+        "serious_condition": false,
+        "heart_rate": 200,
+        "oxygen_saturation": [98, 97, 96],
+        "temperature": 37.7,
+        "symptoms": ["cough", "fever"],
+        "radiography": null
+    },
+    {
+        "observation_date": new Date(),
+        "serious_condition": false,
+        "heart_rate": 80,
+        "oxygen_saturation": [80, 70, 96],
+        "temperature": 37.7,
+        "symptoms": ["cough", "dead"],
+        "radiography": null
+    }
+    ])
+    print("result addObservationsToSheet = ",result)
+    //db.patient_obs_sheet.find()
+
+
+
+    //ADD OBSERVATIONS -> status true so it should work
+    result = addObservationsToSheet("1890123456790", "1890123456787", {
+        "observation_date": new Date(),
+        "serious_condition": false,
+        "heart_rate": 85,
+        "oxygen_saturation": [98, 97, 96],
+        "temperature": 37.7,
+        "symptoms": ["cough", "fever"],
+        "radiography": null
+    })
+    print("result addObservationsToSheet = ",result)
+    //db.patient_obs_sheet.find()
+
+
+    //ADD RADIOGRAPHY TO OBSERVATION
+     
+    result = addRadiographyToObservation("1890123456790", "1890123456787", new Date("2024-04-20"), 
+    convertImageToBase64('/Users/adim/Desktop/FACULTATE/AN4/SEM2/ECBD/Proiect/radiografie.jpeg'));
+    print("result addRadiographyToObservation = ",result)
+    //db.patient_obs_sheet.find().pretty();
+
+
+}
+
+
+

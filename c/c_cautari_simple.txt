@@ -1,0 +1,118 @@
+
+
+///////////// SCRIPT C - CAUTARI SIMPLE //////////////
+db.doctors.find({ "specialization": "Cardiology" }).pretty();
+db.patients.find({ "personal_details.age": { $gt: 40 } }).pretty();
+db.patient_obs_sheet.find({ "observations.symptoms": "fever" }).pretty();
+db.doctors.find({ "personal_details.email": { $exists: true } }).pretty();
+db.patients.find({ "medical_history.diagnostic": "hypertension", "medical_history.treatment": "betablockers" }).pretty();
+db.patients.find().sort({ "personal_details.age": -1 }).pretty();
+db.doctors.find({}, { "full_name.last_name": 1, "specialization": 1 }).pretty();
+db.doctors.find({ "personal_details.email": null }).pretty();
+db.patient_obs_sheet.find({ "observations.radiography": null }).pretty();
+db.patient_obs_sheet.find({ "observations.heart_rate": { $gt: 80 } }).pretty();
+db.patient_obs_sheet.find({ "observations.temperature": { $gt: 37.5 } }).pretty();
+db.patient_obs_sheet.find({ "patient": "1890123456786", "observations.oxygen_saturation": 99 }).pretty();
+db.patients.find({}, { "medical_history": 1 }).pretty();
+db.patient_obs_sheet.find().skip(2).limit(2).pretty();
+
+//added to function
+
+// search all Cardiologists
+function findCardiologists() {
+    var query = { "specialization": "Cardiology" };
+    var result = db.doctors.find(query).pretty();
+    print("Cardiologists:");
+    printjson(result.toArray());
+}
+findCardiologists()
+
+//  search all patients above 40 years old
+function findPatientsAboveAge(age) {
+    var query = { "personal_details.age": { $gt: age } };
+    var result = db.patients.find(query).pretty();
+    print(`Patients above ${age} years old:`);
+    printjson(result.toArray());
+}
+findPatientsAboveAge(40)
+
+//  search all observation sheets with fever symptoms
+function findObservationSheetsWithFeverSymptoms(symptom) {
+    var query = { "observations.symptoms": symptom };
+    var result = db.patient_obs_sheet.find(query).pretty();
+    print("Observation sheets with fever symptoms:");
+    printjson(result.toArray());
+}
+findObservationSheetsWithFeverSymptoms("fever")
+
+//  search all patients with hypertension and betablockers treatment
+function findPatientsWithHypertensionAndBetablockers(diagnostic, treatment) {
+    var query = {
+        "medical_history.diagnostic": diagnostic,
+        "medical_history.treatment": treatment
+    };
+    var result = db.patients.find(query).pretty();
+    print("Patients with hypertension and betablockers treatment:");
+    printjson(result.toArray());
+}
+var diagnostic = "hypertension";
+var treatment = "betablockers";
+
+findPatientsWithHypertensionAndBetablockers(diagnostic, treatment);
+
+//  search all patients sorted by age
+function findPatientsSortedByAge() {
+    var result = db.patients.find().sort({ "personal_details.age": -1 }).pretty();
+    print("Patients sorted by age:");
+    printjson(result.toArray());
+}
+findPatientsSortedByAge()
+
+//  search all doctors' names and specializations
+function findDoctorsNamesAndSpecializations() {
+    var projection = { "full_name.last_name": 1, "specialization": 1 };
+    var result = db.doctors.find({}, projection).pretty();
+    print("Doctors' names and specializations:");
+    printjson(result.toArray());
+}
+findDoctorsNamesAndSpecializations()
+
+//  search all observation sheets without radiography
+function findObservationSheetsWithoutRadiography() {
+    var query = { "observations.radiography": null };
+    var result = db.patient_obs_sheet.find(query).pretty();
+    print("Observation sheets without radiography:");
+    printjson(result.toArray());
+}
+findObservationSheetsWithoutRadiography()
+
+
+//  search all observation sheets with heart rate greater than 80
+function findObservationSheetsWithHighHeartRate(rate) {
+    var query = { "observations.heart_rate": { $gt: rate } };
+    var result = db.patient_obs_sheet.find(query).pretty();
+    print("Observation sheets with heart rate greater than 80:");
+    printjson(result.toArray());
+}
+findObservationSheetsWithHighHeartRate(80)
+
+//  search all observation sheets with temperature greater than 37.5
+function findObservationSheetsWithHighTemperature(temperature) {
+    var query = { "observations.temperature": { $gt: temperature } };
+    var result = db.patient_obs_sheet.find(query).pretty();
+    print("Observation sheets with temperature greater than 37.5:");
+    printjson(result.toArray());
+}
+findObservationSheetsWithHighTemperature(37.5)
+
+
+//  search all patients with their medical history
+function findPaginates(skip_n, limit_n) {
+    var result = db.patient_obs_sheet.find().skip(skip_n).limit(limit_n).pretty();
+    print("Two observation sheets skipping the first two:");
+    printjson(result.toArray());
+}
+findPaginates(2, 2)
+
+
+

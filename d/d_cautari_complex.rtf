@@ -1,0 +1,197 @@
+{\rtf1\mac\ansicpg10000\cocoartf2709
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red193\green193\blue193;\red89\green138\blue67;\red24\green24\blue24;
+\red70\green137\blue204;\red212\green214\blue154;\red140\green211\blue254;\red202\green202\blue202;\red167\green197\blue152;
+\red194\green126\blue101;\red183\green111\blue179;\red205\green173\blue106;}
+{\*\expandedcolortbl;;\cssrgb\c80000\c80000\c80000;\cssrgb\c41569\c60000\c33333;\cssrgb\c12157\c12157\c12157;
+\cssrgb\c33725\c61176\c83922;\cssrgb\c86275\c86275\c66667;\cssrgb\c61176\c86275\c99608;\cssrgb\c83137\c83137\c83137;\cssrgb\c70980\c80784\c65882;
+\cssrgb\c80784\c56863\c47059;\cssrgb\c77255\c52549\c75294;\cssrgb\c84314\c72941\c49020;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf2 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \
+\
+\cf3 \cb4 \strokec3 ///////////// SCRIPT D - CAUTARI COMPLEXE //////////////\cf2 \cb1 \strokec2 \
+\cf3 \cb4 \strokec3 //USE CURSORS\cf2 \cb1 \strokec2 \
+\cf3 \cb4 \strokec3 //iterate over an cursor\cf2 \cb1 \strokec2 \
+\cf5 \cb4 \strokec5 function\cf2 \strokec2  \cf6 \strokec6 iterateCursor\cf2 \strokec2 () \{\cb1 \
+\cb4     \cf5 \strokec5 let\cf2 \strokec2  \cf7 \strokec7 cursor\cf2 \strokec2  \cf8 \strokec8 =\cf2 \strokec2  \cf7 \strokec7 db\cf2 \strokec2 .\cf7 \strokec7 patients\cf2 \strokec2 .\cf6 \strokec6 find\cf2 \strokec2 (\cb1 \
+\cb4         \{\},\cb1 \
+\cb4         \cb1 \
+\cb4         \{\cb1 \
+\cb4             \cf7 \strokec7 _id:\cf2 \strokec2  \cf9 \strokec9 1\cf2 \strokec2 ,\cb1 \
+\cb4             \cf10 \strokec10 "full_name.last_name"\cf7 \strokec7 :\cf2 \strokec2  \cf9 \strokec9 1\cf2 \strokec2 ,\cb1 \
+\cb4             \cf10 \strokec10 "full_name.first_name"\cf7 \strokec7 :\cf2 \strokec2  \cf9 \strokec9 1\cf2 \strokec2 ,\cb1 \
+\cb4         \}\cb1 \
+\cb4     )\cb1 \
+\cb4     \cf11 \strokec11 while\cf2 \strokec2 (\cf7 \strokec7 cursor\cf2 \strokec2 .\cf6 \strokec6 hasNext\cf2 \strokec2 ()) \{\cb1 \
+\cb4         \cf6 \strokec6 printjson\cf2 \strokec2 (\cf7 \strokec7 cursor\cf2 \strokec2 .\cf6 \strokec6 next\cf2 \strokec2 ());\cb1 \
+\cb4     \}\cb1 \
+\cb4 \}\cb1 \
+\cf6 \cb4 \strokec6 iterateCursor\cf2 \strokec2 ()\cb1 \
+\
+\
+\
+\cf3 \cb4 \strokec3 //mean for headr_rate for all patients\cf2 \cb1 \strokec2 \
+\cf5 \cb4 \strokec5 function\cf2 \strokec2  \cf6 \strokec6 findMean_HeartRate\cf2 \strokec2 () \{\cb1 \
+\cb4     \cf5 \strokec5 let\cf2 \strokec2  \cf7 \strokec7 patientsCursor\cf2 \strokec2  \cf8 \strokec8 =\cf2 \strokec2  \cf7 \strokec7 db\cf2 \strokec2 .\cf7 \strokec7 patients\cf2 \strokec2 .\cf6 \strokec6 find\cf2 \strokec2 ();\cb1 \
+\
+\cb4     \cf11 \strokec11 while\cf2 \strokec2 (\cf7 \strokec7 patientsCursor\cf2 \strokec2 .\cf6 \strokec6 hasNext\cf2 \strokec2 ()) \{\cb1 \
+\cb4         \cf5 \strokec5 let\cf2 \strokec2  \cf7 \strokec7 patient\cf2 \strokec2  \cf8 \strokec8 =\cf2 \strokec2  \cf7 \strokec7 patientsCursor\cf2 \strokec2 .\cf6 \strokec6 next\cf2 \strokec2 ();\cb1 \
+\cb4         \cf5 \strokec5 let\cf2 \strokec2  \cf7 \strokec7 totalHeartRate\cf2 \strokec2  \cf8 \strokec8 =\cf2 \strokec2  \cf9 \strokec9 0\cf2 \strokec2 ;\cb1 \
+\cb4         \cf5 \strokec5 let\cf2 \strokec2  \cf7 \strokec7 count\cf2 \strokec2  \cf8 \strokec8 =\cf2 \strokec2  \cf9 \strokec9 0\cf2 \strokec2 ;\cb1 \
+\cb4         \cb1 \
+\cb4         \cf5 \strokec5 let\cf2 \strokec2  \cf7 \strokec7 observationsCursor\cf2 \strokec2  \cf8 \strokec8 =\cf2 \strokec2  \cf7 \strokec7 db\cf2 \strokec2 .\cf7 \strokec7 patient_obs_sheet\cf2 \strokec2 .\cf6 \strokec6 find\cf2 \strokec2 (\{ \cf10 \strokec10 "patient"\cf7 \strokec7 :\cf2 \strokec2  \cf7 \strokec7 patient\cf2 \strokec2 .\cf7 \strokec7 _id\cf2 \strokec2  \});\cb1 \
+\
+\cb4         \cf11 \strokec11 while\cf2 \strokec2 (\cf7 \strokec7 observationsCursor\cf2 \strokec2 .\cf6 \strokec6 hasNext\cf2 \strokec2 ()) \{\cb1 \
+\cb4             \cf5 \strokec5 let\cf2 \strokec2  \cf7 \strokec7 observation\cf2 \strokec2  \cf8 \strokec8 =\cf2 \strokec2  \cf7 \strokec7 observationsCursor\cf2 \strokec2 .\cf6 \strokec6 next\cf2 \strokec2 ();\cb1 \
+\cb4             \cf7 \strokec7 observation\cf2 \strokec2 .\cf7 \strokec7 observations\cf2 \strokec2 .\cf6 \strokec6 forEach\cf2 \strokec2 (\cf5 \strokec5 function\cf2 \strokec2 (\cf7 \strokec7 obs\cf2 \strokec2 ) \{\cb1 \
+\cb4                 \cf7 \strokec7 totalHeartRate\cf2 \strokec2  \cf8 \strokec8 +=\cf2 \strokec2  \cf7 \strokec7 obs\cf2 \strokec2 .\cf7 \strokec7 heart_rate\cf2 \strokec2 ;\cb1 \
+\cb4                 \cf7 \strokec7 count\cf8 \strokec8 ++\cf2 \strokec2 ;\cb1 \
+\cb4             \});\cb1 \
+\cb4         \}\cb1 \
+\cb4         \cb1 \
+\cb4         \cf5 \strokec5 let\cf2 \strokec2  \cf7 \strokec7 avgHeartRate\cf2 \strokec2  \cf8 \strokec8 =\cf2 \strokec2  \cf7 \strokec7 totalHeartRate\cf2 \strokec2  \cf8 \strokec8 /\cf2 \strokec2  \cf7 \strokec7 count\cf2 \strokec2 ;\cb1 \
+\cb4         \cf6 \strokec6 print\cf2 \strokec2 (\cf10 \strokec10 `Mean heart_rate for \cf5 \strokec5 $\{\cf7 \strokec7 patient\cf8 \strokec8 .\cf7 \strokec7 full_name\cf8 \strokec8 .\cf7 \strokec7 first_name\cf5 \strokec5 \}\cf10 \strokec10  \cf5 \strokec5 $\{\cf7 \strokec7 patient\cf8 \strokec8 .\cf7 \strokec7 full_name\cf8 \strokec8 .\cf7 \strokec7 last_name\cf5 \strokec5 \}\cf10 \strokec10 : \cf5 \strokec5 $\{\cf7 \strokec7 avgHeartRate\cf8 \strokec8 .\cf6 \strokec6 toFixed\cf8 \strokec8 (\cf9 \strokec9 2\cf8 \strokec8 )\cf5 \strokec5 \}\cf10 \strokec10 `\cf2 \strokec2 );\cb1 \
+\cb4     \}\cb1 \
+\cb4 \}\cb1 \
+\cf6 \cb4 \strokec6 findMean_HeartRate\cf2 \strokec2 ()\cb1 \
+\
+\cf7 \cb4 \strokec7 db\cf2 \strokec2 .\cf7 \strokec7 patients\cf2 \strokec2 .\cf6 \strokec6 find\cf2 \strokec2 ()\cb1 \
+\cf7 \cb4 \strokec7 db\cf2 \strokec2 .\cf7 \strokec7 patient_obs_sheet\cf2 \strokec2 .\cf6 \strokec6 find\cf2 \strokec2 ()\cb1 \
+\
+\cf3 \cb4 \strokec3 //compute mean temperature for patients with symptoms fever\cf2 \cb1 \strokec2 \
+\cf5 \cb4 \strokec5 function\cf2 \strokec2  \cf6 \strokec6 findMean_Temperature\cf2 \strokec2 (\cf7 \strokec7 symptom\cf2 \strokec2 ) \{\cb1 \
+\cb4     \cb1 \
+\cf5 \cb4 \strokec5 let\cf2 \strokec2  \cf7 \strokec7 totalTemp\cf2 \strokec2  \cf8 \strokec8 =\cf2 \strokec2  \cf9 \strokec9 0\cf2 \strokec2 ;\cb1 \
+\cf5 \cb4 \strokec5 let\cf2 \strokec2  \cf7 \strokec7 countTemp\cf2 \strokec2  \cf8 \strokec8 =\cf2 \strokec2  \cf9 \strokec9 0\cf2 \strokec2 ;\cb1 \
+\
+\cf5 \cb4 \strokec5 let\cf2 \strokec2  \cf7 \strokec7 observationsCursor\cf2 \strokec2  \cf8 \strokec8 =\cf2 \strokec2  \cf7 \strokec7 db\cf2 \strokec2 .\cf7 \strokec7 patient_obs_sheet\cf2 \strokec2 .\cf6 \strokec6 find\cf2 \strokec2 (\{ \cf10 \strokec10 "observations.symptoms"\cf7 \strokec7 :\cf2 \strokec2  \cf7 \strokec7 symptom\cf2 \strokec2  \});\cb1 \
+\
+\cf11 \cb4 \strokec11 while\cf2 \strokec2 (\cf7 \strokec7 observationsCursor\cf2 \strokec2 .\cf6 \strokec6 hasNext\cf2 \strokec2 ()) \{\cb1 \
+\cb4     \cf5 \strokec5 let\cf2 \strokec2  \cf7 \strokec7 observation\cf2 \strokec2  \cf8 \strokec8 =\cf2 \strokec2  \cf7 \strokec7 observationsCursor\cf2 \strokec2 .\cf6 \strokec6 next\cf2 \strokec2 ();\cb1 \
+\cb4     \cf7 \strokec7 observation\cf2 \strokec2 .\cf7 \strokec7 observations\cf2 \strokec2 .\cf6 \strokec6 forEach\cf2 \strokec2 (\cf5 \strokec5 function\cf2 \strokec2 (\cf7 \strokec7 obs\cf2 \strokec2 ) \{\cb1 \
+\cb4         \cf11 \strokec11 if\cf2 \strokec2  (\cf7 \strokec7 obs\cf2 \strokec2 .\cf7 \strokec7 symptoms\cf2 \strokec2 .\cf6 \strokec6 includes\cf2 \strokec2 (\cf7 \strokec7 symptom\cf2 \strokec2 )) \{\cb1 \
+\cb4             \cf7 \strokec7 totalTemp\cf2 \strokec2  \cf8 \strokec8 +=\cf2 \strokec2  \cf7 \strokec7 obs\cf2 \strokec2 .\cf7 \strokec7 temperature\cf2 \strokec2 ;\cb1 \
+\cb4             \cf7 \strokec7 countTemp\cf8 \strokec8 ++\cf2 \strokec2 ;\cb1 \
+\
+\cb4             \cf5 \strokec5 let\cf2 \strokec2  \cf7 \strokec7 patient\cf2 \strokec2  \cf8 \strokec8 =\cf2 \strokec2  \cf7 \strokec7 db\cf2 \strokec2 .\cf7 \strokec7 patients\cf2 \strokec2 .\cf6 \strokec6 findOne\cf2 \strokec2 (\{ \cf10 \strokec10 "_id"\cf7 \strokec7 :\cf2 \strokec2  \cf7 \strokec7 observation\cf2 \strokec2 .\cf7 \strokec7 patient\cf2 \strokec2  \});\cb1 \
+\cb4             \cf6 \strokec6 print\cf2 \strokec2 (\cf10 \strokec10 `- Patient: \cf5 \strokec5 $\{\cf7 \strokec7 patient\cf8 \strokec8 .\cf7 \strokec7 full_name\cf8 \strokec8 .\cf7 \strokec7 first_name\cf5 \strokec5 \}\cf10 \strokec10  \cf5 \strokec5 $\{\cf7 \strokec7 patient\cf8 \strokec8 .\cf7 \strokec7 full_name\cf8 \strokec8 .\cf7 \strokec7 last_name\cf5 \strokec5 \}\cf10 \strokec10 , ID: \cf5 \strokec5 $\{\cf7 \strokec7 patient\cf8 \strokec8 .\cf7 \strokec7 _id\cf5 \strokec5 \}\cf10 \strokec10 `\cf2 \strokec2 );\cb1 \
+\cb4             \cf6 \strokec6 print\cf2 \strokec2 (\cf10 \strokec10 `  Temperature: \cf5 \strokec5 $\{\cf7 \strokec7 obs\cf8 \strokec8 .\cf7 \strokec7 temperature\cf5 \strokec5 \}\cf10 \strokec10 `\cf2 \strokec2 );\cb1 \
+\cb4             \cf6 \strokec6 print\cf2 \strokec2 (\cf10 \strokec10 `  Symptoms: \cf5 \strokec5 $\{\cf7 \strokec7 obs\cf8 \strokec8 .\cf7 \strokec7 symptoms\cf5 \strokec5 \}\cf10 \strokec10 `\cf2 \strokec2 );\cb1 \
+\cb4         \}\cb1 \
+\cb4     \});\cb1 \
+\cb4 \}\cb1 \
+\
+\cf11 \cb4 \strokec11 if\cf2 \strokec2  (\cf7 \strokec7 countTemp\cf2 \strokec2  \cf8 \strokec8 >\cf2 \strokec2  \cf9 \strokec9 0\cf2 \strokec2 ) \{\cb1 \
+\cb4     \cf5 \strokec5 let\cf2 \strokec2  \cf7 \strokec7 avgTemp\cf2 \strokec2  \cf8 \strokec8 =\cf2 \strokec2  \cf7 \strokec7 totalTemp\cf2 \strokec2  \cf8 \strokec8 /\cf2 \strokec2  \cf7 \strokec7 countTemp\cf2 \strokec2 ;\cb1 \
+\cb4     \cf6 \strokec6 print\cf2 \strokec2 (\cf10 \strokec10 `\cf12 \strokec12 \\n\cf10 \strokec10 Mean temperature for fever symptom : \cf5 \strokec5 $\{\cf7 \strokec7 avgTemp\cf8 \strokec8 .\cf6 \strokec6 toFixed\cf8 \strokec8 (\cf9 \strokec9 2\cf8 \strokec8 )\cf5 \strokec5 \}\cf10 \strokec10 `\cf2 \strokec2 );\cb1 \
+\cb4 \} \cf11 \strokec11 else\cf2 \strokec2  \{\cb1 \
+\cb4     \cf6 \strokec6 print\cf2 \strokec2 (\cf10 \strokec10 "No patient with fever symptoms found."\cf2 \strokec2 );\cb1 \
+\cb4 \}\cb1 \
+\cb4 \}\cb1 \
+\
+\cf6 \cb4 \strokec6 findMean_Temperature\cf2 \strokec2 (\cf10 \strokec10 "fever"\cf2 \strokec2 )\cb1 \
+\
+\
+\cf3 \cb4 \strokec3 //USE AGGREGATE\cf2 \cb1 \strokec2 \
+\cf3 \cb4 \strokec3 //compune number of obs sheets for each doctor\cf2 \cb1 \strokec2 \
+\cf5 \cb4 \strokec5 function\cf2 \strokec2  \cf6 \strokec6 countObservationSheetsForDoctor\cf2 \strokec2 () \{\cb1 \
+\cb4     \cb1 \
+\cb4     \cf7 \strokec7 db\cf2 \strokec2 .\cf7 \strokec7 patient_obs_sheet\cf2 \strokec2 .\cf6 \strokec6 aggregate\cf2 \strokec2 ([\cb1 \
+\cb4         \{ \cf7 \strokec7 $group:\cf2 \strokec2  \{ \cf7 \strokec7 _id:\cf2 \strokec2  \cf10 \strokec10 "$doctor"\cf2 \strokec2 , \cf7 \strokec7 count:\cf2 \strokec2  \{ \cf7 \strokec7 $sum:\cf2 \strokec2  \cf9 \strokec9 1\cf2 \strokec2  \} \} \},\cb1 \
+\cb4         \{ \cf7 \strokec7 $sort:\cf2 \strokec2  \{ \cf7 \strokec7 count:\cf2 \strokec2  \cf8 \strokec8 -\cf9 \strokec9 1\cf2 \strokec2  \} \}\cb1 \
+\cb4     ]).\cf6 \strokec6 pretty\cf2 \strokec2 ();\cb1 \
+\cb4 \}\cb1 \
+\cf6 \cb4 \strokec6 countObservationSheetsForDoctor\cf2 \strokec2 ()\cb1 \
+\
+\cf3 \cb4 \strokec3 //display main symptoms for each patient\cf2 \cb1 \strokec2 \
+\cf5 \cb4 \strokec5 function\cf2 \strokec2  \cf6 \strokec6 mainSymptomsForPatient\cf2 \strokec2 () \{\cb1 \
+\cb4    \cf5 \strokec5 var\cf2 \strokec2  \cf7 \strokec7 result\cf2 \strokec2  \cf8 \strokec8 =\cf2 \strokec2   \cf7 \strokec7 db\cf2 \strokec2 .\cf7 \strokec7 patient_obs_sheet\cf2 \strokec2 .\cf6 \strokec6 aggregate\cf2 \strokec2 ([\cb1 \
+\cb4         \{ \cf7 \strokec7 $unwind:\cf2 \strokec2  \cf10 \strokec10 "$observations"\cf2 \strokec2  \},\cb1 \
+\cb4         \{ \cf7 \strokec7 $unwind:\cf2 \strokec2  \cf10 \strokec10 "$observations.symptoms"\cf2 \strokec2  \}, \cb1 \
+\cb4         \{ \cb1 \
+\cb4             \cf7 \strokec7 $group:\cf2 \strokec2  \{ \cb1 \
+\cb4             \cf7 \strokec7 _id:\cf2 \strokec2  \cf10 \strokec10 "$_id"\cf2 \strokec2 ,\cb1 \
+\cb4             \cf7 \strokec7 unique_symptoms_for_each_doc:\cf2 \strokec2  \{ \cf7 \strokec7 $addToSet:\cf2 \strokec2  \cf10 \strokec10 "$observations.symptoms"\cf2 \strokec2  \}\cb1 \
+\cb4         \} \cb1 \
+\cb4     \}\cb1 \
+\cb4     ]).\cf6 \strokec6 pretty\cf2 \strokec2 ();\cb1 \
+\
+\cb4     \cf6 \strokec6 printjson\cf2 \strokec2 (\cf7 \strokec7 result\cf2 \strokec2 .\cf6 \strokec6 toArray\cf2 \strokec2 ());\cb1 \
+\cb4 \}\cb1 \
+\
+\cf6 \cb4 \strokec6 mainSymptomsForPatient\cf2 \strokec2 ()\cb1 \
+\
+\cf3 \cb4 \strokec3 //check first 3 patients with the highest heart rate\cf2 \cb1 \strokec2 \
+\cf5 \cb4 \strokec5 function\cf2 \strokec2  \cf6 \strokec6 classifyPatientsByHeartRate\cf2 \strokec2 () \{\cb1 \
+\cb4     \cf5 \strokec5 var\cf2 \strokec2  \cf7 \strokec7 result\cf2 \strokec2   \cf8 \strokec8 =\cf2 \strokec2  \cf7 \strokec7 db\cf2 \strokec2 .\cf7 \strokec7 patient_obs_sheet\cf2 \strokec2 .\cf6 \strokec6 aggregate\cf2 \strokec2 ([\cb1 \
+\cb4         \{ \cf7 \strokec7 $unwind:\cf2 \strokec2  \cf10 \strokec10 "$observations"\cf2 \strokec2  \},\cb1 \
+\cb4         \{ \cb1 \
+\cb4             \cf7 \strokec7 $group:\cf2 \strokec2  \{ \cb1 \
+\cb4             \cf7 \strokec7 _id:\cf2 \strokec2  \cf10 \strokec10 "$_id"\cf2 \strokec2 ,\cb1 \
+\cb4             \cf7 \strokec7 total_heartb:\cf2 \strokec2  \{ \cf7 \strokec7 $sum:\cf2 \strokec2  \cf10 \strokec10 "$observations.heart_rate"\cf2 \strokec2  \}\cb1 \
+\cb4         \} \cb1 \
+\cb4     \},\cb1 \
+\cb4     \{\cb1 \
+\cb4         \cf7 \strokec7 $sort:\cf2 \strokec2 \{\cf7 \strokec7 total_heartb:\cf8 \strokec8 -\cf9 \strokec9 1\cf2 \strokec2 \}\cb1 \
+\cb4     \},\cb1 \
+\cb4     \{\cb1 \
+\cb4         \cf7 \strokec7 $limit:\cf2 \strokec2  \cf9 \strokec9 3\cf2 \cb1 \strokec2 \
+\cb4     \}\cb1 \
+\cb4     ]).\cf6 \strokec6 pretty\cf2 \strokec2 ();\cb1 \
+\cb4     \cf6 \strokec6 printjson\cf2 \strokec2 (\cf7 \strokec7 result\cf2 \strokec2 .\cf6 \strokec6 toArray\cf2 \strokec2 ());\cb1 \
+\
+\cb4 \}\cb1 \
+\
+\cf6 \cb4 \strokec6 classifyPatientsByHeartRate\cf2 \strokec2 () \cb1 \
+\
+\
+\cf3 \cb4 \strokec3 //USE AGGREGATE AND LOOKUP\cf2 \cb1 \strokec2 \
+\cf3 \cb4 \strokec3 //take complete details of patients with fever symptoms(symptoms from observations from patient_obs_sheet)\cf2 \cb1 \strokec2 \
+\cf5 \cb4 \strokec5 function\cf2 \strokec2  \cf6 \strokec6 getPatientsWithSymptom\cf2 \strokec2 (\cf7 \strokec7 symptom\cf2 \strokec2 ) \{\cb1 \
+\cb4    \cb1 \
+\cb4     \cf5 \strokec5 var\cf2 \strokec2  \cf7 \strokec7 result\cf2 \strokec2  \cf8 \strokec8 =\cf2 \strokec2  \cf7 \strokec7 db\cf2 \strokec2 .\cf7 \strokec7 patient_obs_sheet\cf2 \strokec2 .\cf6 \strokec6 aggregate\cf2 \strokec2 ([\cb1 \
+\cb4         \{ \cf7 \strokec7 $match:\cf2 \strokec2  \{ \cf10 \strokec10 "observations.symptoms"\cf7 \strokec7 :\cf2 \strokec2  \cf7 \strokec7 symptom\cf2 \strokec2  \} \},\cb1 \
+\cb4         \{ \cf7 \strokec7 $unwind:\cf2 \strokec2  \cf10 \strokec10 "$observations"\cf2 \strokec2  \},\cb1 \
+\cb4         \{ \cf7 \strokec7 $lookup:\cf2 \strokec2  \{ \cf7 \strokec7 from:\cf2 \strokec2  \cf10 \strokec10 "patients"\cf2 \strokec2 , \cf7 \strokec7 localField:\cf2 \strokec2  \cf10 \strokec10 "patient"\cf2 \strokec2 , \cf7 \strokec7 foreignField:\cf2 \strokec2  \cf10 \strokec10 "_id"\cf2 \strokec2 , \cf7 \strokec7 as:\cf2 \strokec2  \cf10 \strokec10 "patient_details"\cf2 \strokec2  \} \},\cb1 \
+\cb4         \{ \cf7 \strokec7 $project:\cf2 \strokec2  \{ \cb1 \
+\cb4             \cf7 \strokec7 patient_id:\cf2 \strokec2  \cf10 \strokec10 "$patient_details._id"\cf2 \strokec2 ,\cb1 \
+\cb4             \cf7 \strokec7 patient_name:\cf2 \strokec2  \cf10 \strokec10 "$patient_details.full_name"\cf2 \strokec2 ,\cb1 \
+\cb4             \cf7 \strokec7 personal_details:\cf10 \strokec10 "$patient_details.personal_details"\cf2 \strokec2 ,\cb1 \
+\cb4             \cf7 \strokec7 temperature:\cf2 \strokec2  \cf10 \strokec10 "$observations.temperature"\cf2 \strokec2 ,\cb1 \
+\cb4             \cf7 \strokec7 symptoms:\cf2 \strokec2  \cf10 \strokec10 "$observations.symptoms"\cf2 \cb1 \strokec2 \
+\cb4         \}\}\cb1 \
+\cb4     ]).\cf6 \strokec6 pretty\cf2 \strokec2 ();\cb1 \
+\cb4     \cf6 \strokec6 printjson\cf2 \strokec2 (\cf7 \strokec7 result\cf2 \strokec2 .\cf6 \strokec6 toArray\cf2 \strokec2 ());\cb1 \
+\cb4 \}\cb1 \
+\
+\cf6 \cb4 \strokec6 getPatientsWithSymptom\cf2 \strokec2 (\cf10 \strokec10 "headaches"\cf2 \strokec2 )\cb1 \
+\
+\cf3 \cb4 \strokec3 //mean oxygen level for each patient\cf2 \cb1 \strokec2 \
+\cf5 \cb4 \strokec5 function\cf2 \strokec2  \cf6 \strokec6 findMean_OxygenLevel\cf2 \strokec2 () \{\cb1 \
+\cb4     \cf5 \strokec5 var\cf2 \strokec2  \cf7 \strokec7 result\cf2 \strokec2  \cf8 \strokec8 =\cf2 \strokec2  \cf7 \strokec7 db\cf2 \strokec2 .\cf7 \strokec7 patient_obs_sheet\cf2 \strokec2 .\cf6 \strokec6 aggregate\cf2 \strokec2 ([\cb1 \
+\cb4         \{ \cf7 \strokec7 $unwind:\cf2 \strokec2  \cf10 \strokec10 "$observations"\cf2 \strokec2  \},\cb1 \
+\cb4         \{ \cf7 \strokec7 $unwind:\cf2 \strokec2  \cf10 \strokec10 "$observations.oxygen_saturation"\cf2 \strokec2  \}, \cb1 \
+\cb4         \{ \cf7 \strokec7 $group:\cf2 \strokec2  \{ \cb1 \
+\cb4             \cf7 \strokec7 _id:\cf2 \strokec2  \cf10 \strokec10 "$patient"\cf2 \strokec2 , \cb1 \
+\cb4             \cf7 \strokec7 avg_oxygen_level:\cf2 \strokec2  \{ \cf7 \strokec7 $avg:\cf2 \strokec2  \cf10 \strokec10 "$observations.oxygen_saturation"\cf2 \strokec2  \} \cb1 \
+\cb4         \}\},\cb1 \
+\cb4         \{ \cf7 \strokec7 $lookup:\cf2 \strokec2  \{ \cf7 \strokec7 from:\cf2 \strokec2  \cf10 \strokec10 "patients"\cf2 \strokec2 , \cf7 \strokec7 localField:\cf2 \strokec2  \cf10 \strokec10 "_id"\cf2 \strokec2 , \cf7 \strokec7 foreignField:\cf2 \strokec2  \cf10 \strokec10 "_id"\cf2 \strokec2 , \cf7 \strokec7 as:\cf2 \strokec2  \cf10 \strokec10 "patient_details"\cf2 \strokec2  \} \},\cb1 \
+\cb4         \{ \cf7 \strokec7 $unwind:\cf2 \strokec2  \cf10 \strokec10 "$patient_details"\cf2 \strokec2  \}, \cb1 \
+\cb4         \{ \cf7 \strokec7 $project:\cf2 \strokec2  \{ \cb1 \
+\cb4             \cf7 \strokec7 patient_name:\cf2 \strokec2  \cf10 \strokec10 "$patient_details.full_name"\cf2 \strokec2 ,\cb1 \
+\cb4             \cf7 \strokec7 avg_oxygen_level:\cf2 \strokec2  \cf9 \strokec9 1\cf2 \cb1 \strokec2 \
+\cb4         \}\}\cb1 \
+\cb4     ]).\cf6 \strokec6 pretty\cf2 \strokec2 ();\cb1 \
+\cb4     \cf6 \strokec6 printjson\cf2 \strokec2 (\cf7 \strokec7 result\cf2 \strokec2 .\cf6 \strokec6 toArray\cf2 \strokec2 ());\cb1 \
+\cb4 \}\cb1 \
+\cf6 \cb4 \strokec6 findMean_OxygenLevel\cf2 \strokec2 ()\cb1 \
+\
+\
+\cf7 \cb4 \strokec7 db\cf2 \strokec2 .\cf7 \strokec7 patient_obs_sheet\cf2 \strokec2 .\cf6 \strokec6 find\cf2 \strokec2 ()\cb1 \
+\cf7 \cb4 \strokec7 db\cf2 \strokec2 .\cf7 \strokec7 patients\cf2 \strokec2 .\cf6 \strokec6 find\cf2 \strokec2 ()\cb1 \
+\cf7 \cb4 \strokec7 db\cf2 \strokec2 .\cf7 \strokec7 doctors\cf2 \strokec2 .\cf6 \strokec6 find\cf2 \strokec2 ()\cb1 \
+}
